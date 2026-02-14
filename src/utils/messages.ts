@@ -1,4 +1,4 @@
-export const helpText = `
+export const HELP_TEXT = `
 📌 *AVAILABLE COMMANDS*
 
 ---------------------------------------
@@ -17,7 +17,7 @@ Ask the AI assistant
 Get phrase completion suggestions
 - Complete all phrases
 
-🧠 */words-mean*
+🧠 */word-mean*
 Did you recognize the word!?
 - Right Here, you should explain what the random word, slang, verb, etc.c, means
 

@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "mysql"
+}
+
+model word_chain {
+  id Int @id @default(autoincrement())
+  last_word String? 
+  chat_id    String   @unique
+  start_letter String
+  used_words Json @default("[]")
+  created_at DateTime @default(now())
+}
+
+model Phrase {
+  id         Int      @id @default(autoincrement())
+  fullPhrase String
+  tip        String?
+  difficulty String?   // b1 / b2 / c1
+  category   String?   // grammar / vocab / phrasal
+  createdAt  DateTime @default(now())
+
+  answers    Answer[]
+}
+
+model Answer {
+  id        Int    @id @default(autoincrement())
+  phraseId  Int
+  text      String
+  isCorrect Boolean @default(false)
+
+  phrase    Phrase @relation(fields: [phraseId], references: [id])
+}
