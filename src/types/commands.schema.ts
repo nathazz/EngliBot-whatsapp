@@ -2,11 +2,10 @@ import { z } from "zod";
 
 export const CommandsEnum = z.enum([
   "/word-chain",
-  "/word-mean",
+  "/random-slang",
   "/phrases",
   "/ask",
   "/help",
 ]);
 
-export type Command = z.infer<typeof CommandsEnum>;
-
+export type CommandResponse = z.infer<typeof CommandsEnum>;

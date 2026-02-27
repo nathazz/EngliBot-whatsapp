@@ -1,9 +1,10 @@
 import axios from "axios";
+import "dotenv/config";
 
 export async function isRealWord(word: string): Promise<boolean> {
   try {
     const res = await axios.get(
-      `https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`,
+      `${process.env.DICTIONARY_API}${word.toLowerCase()}`,
       { validateStatus: (s) => s < 500 },
     );
 

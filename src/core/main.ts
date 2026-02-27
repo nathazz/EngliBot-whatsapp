@@ -1,9 +1,9 @@
-import { MessageMedia } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
-import { HELP_TEXT } from "../utils/messages";
 import "dotenv/config";
-import { CommandsEnum } from "../types/commands";
 import { client } from "../config/clientWp";
+import { handleWordChain } from "../handlers/wordChain.handler";
+import { handleCommand } from "../handlers/commands.handler";
+import { handleCompletePhrase } from "../handlers/completePhrase.handler";
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
@@ -15,36 +15,20 @@ client.on("ready", async () => {
 });
 
 client.on("message_create", async (msg) => {
+  if (msg.hasQuotedMsg) return;
   if (msg.from !== process.env.NUMBER_ID) return;
 
-  const command = msg.body.trim().toLowerCase();
+  const msgUser = msg.body.trim().toLowerCase();
 
-  if (!command.startsWith("/")) return;
+  if (await handleWordChain(msg, msgUser)) return;
+  if (await handleCompletePhrase(msg, msgUser)) return;
 
-  const parsed = CommandsEnum.safeParse(command);
+  if (!msgUser.startsWith("/")) return;
 
-  if (!parsed.success) {
-    return msg.reply("The command doesn't exist, check /help");
-  }
+  const [rawCommand, ...args] = msgUser.split(" ");
+  const command = rawCommand.toLowerCase();
 
-  switch (parsed.data) {
-    case "/word-chain":
-      return msg.reply("anything for now! thanks");
-
-    case "/word-mean":
-      return msg.reply("anything for now! thanks");
-
-    case "/phrases": {
-      const media = MessageMedia.fromFilePath("./src/media/photo.jpg");
-      return msg.reply(media);
-    }
-
-    case "/ask":
-      return msg.reply("anything for now again!");
-
-    case "/help":
-      return msg.reply(HELP_TEXT);
-  }
+  await handleCommand(msg, command, args);
 });
 
 client.initialize();
