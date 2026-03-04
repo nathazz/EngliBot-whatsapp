@@ -2,9 +2,7 @@ import { SlangApiSchema } from "../types/slangApi.schema";
 import axios from "axios";
 
 export async function getRandomSlangs() {
-  const response = await axios.get(
-    `${process.env.URBAN_API}random?limit=1`,
-  );
+  const response = await axios.get(`${process.env.NEW_URBAN_API}`);
 
   const validData = SlangApiSchema.safeParse(response.data);
 
@@ -12,7 +10,7 @@ export async function getRandomSlangs() {
     throw new Error(`Invalid Urban API response: ${validData.error.message}`);
   }
 
-  const { word, meaning, example } = validData.data.data[0];
+  const { word, example, definition } = validData.data.list[0];
 
-  return { word, meaning, example };
+  return { word, definition, example };
 }

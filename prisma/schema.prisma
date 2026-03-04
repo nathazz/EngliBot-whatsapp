@@ -7,6 +7,18 @@ datasource db {
   provider = "mysql"
 }
 
+
+model GameSession {
+  id        String   @id @default(uuid())
+  chat_id   String   @unique
+  type      GameType
+  createdAt DateTime @default(now())
+}
+
+enum GameType {
+  WORD_CHAIN
+  PHRASE
+}
 model Word_Chain {
   id           Int      @id @default(autoincrement())
   last_word    String?
@@ -16,7 +28,7 @@ model Word_Chain {
   created_at   DateTime @default(now())
 }
 
-model Game {
+model GamePhrase {
   id           String   @id @default(uuid())
   chat_id      String   @unique
   currentRound Int      @default(1)
@@ -32,7 +44,7 @@ model Phrase {
   difficulty String
   category   String
   answers    Answer[]
-  Game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  Game       GamePhrase     @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model Answer {

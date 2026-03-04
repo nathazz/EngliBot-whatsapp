@@ -1,9 +1,8 @@
 import qrcode from "qrcode-terminal";
 import "dotenv/config";
 import { client } from "../config/clientWp";
-import { handleWordChain } from "../handlers/wordChain.handler";
 import { handleCommand } from "../handlers/commands.handler";
-import { handleCompletePhrase } from "../handlers/completePhrase.handler";
+import { gameSession } from "../handlers/gameSession.handler";
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
@@ -19,10 +18,9 @@ client.on("message_create", async (msg) => {
   if (msg.from !== process.env.NUMBER_ID) return;
 
   const msgUser = msg.body.trim().toLowerCase();
+  const isGameActivated = await gameSession(msg, msgUser);
 
-  if (await handleWordChain(msg, msgUser)) return;
-  if (await handleCompletePhrase(msg, msgUser)) return;
-
+  if (isGameActivated) return;
   if (!msgUser.startsWith("/")) return;
 
   const [rawCommand, ...args] = msgUser.split(" ");

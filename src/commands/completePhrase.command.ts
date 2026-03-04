@@ -13,7 +13,7 @@ export async function startAnswerPhrase(
   try {
     const userResponse = message.trim().toLowerCase();
 
-    let game = await prisma.game.findUnique({
+    let game = await prisma.gamePhrase.findUnique({
       where: { chat_id: chatId },
       include: {
         phrases: {
@@ -26,41 +26,65 @@ export async function startAnswerPhrase(
       if (!difficulty || !category) {
         return "⚠️ Start a new game with: /phrases <b1|b2|c1> <grammar|vocab|phrasal>";
       }
+
       const { phrases } = await generatePhrasesResponse(difficulty, category);
 
-      game = await prisma.game.create({
-        data: {
-          chat_id: chatId,
-          phrases: {
-            create: phrases.map((phrase) => ({
-              fullPhrase: phrase.fullPhrase,
-              tip: phrase.tip,
-              difficulty: phrase.difficulty,
-              category: phrase.category,
-              answers: {
-                create: phrase.answers.map((a) => ({
-                  text: a.text,
-                  isCorrect: a.isCorrect,
-                })),
-              },
-            })),
+      const result = await prisma.$transaction(async (tx) => {
+        const existingSession = await tx.gameSession.findUnique({
+          where: { chat_id: chatId },
+        });
+
+        if (existingSession) {
+          throw new Error("Another game is already running.");
+        }
+
+        await tx.gameSession.create({
+          data: {
+            chat_id: chatId,
+            type: "PHRASE",
           },
-        },
-        include: {
-          phrases: {
-            include: { answers: true },
+        });
+
+        const createdGame = await tx.gamePhrase.create({
+          data: {
+            chat_id: chatId,
+            phrases: {
+              create: phrases.map((phrase) => ({
+                fullPhrase: phrase.fullPhrase,
+                tip: phrase.tip,
+                difficulty: phrase.difficulty,
+                category: phrase.category,
+                answers: {
+                  create: phrase.answers.map((a) => ({
+                    text: a.text,
+                    isCorrect: a.isCorrect,
+                  })),
+                },
+              })),
+            },
           },
-        },
+          include: {
+            phrases: {
+              include: { answers: true },
+            },
+          },
+        });
+
+        return createdGame;
       });
 
-      return formatQuestion(game.phrases[0], 1);
+      return formatQuestion(result.phrases[0], 1);
     }
 
     const currentIndex = game.currentRound - 1;
     const currentPhrase = game.phrases[currentIndex];
 
     if (!currentPhrase) {
-      await prisma.game.delete({ where: { chat_id: chatId } });
+      await prisma.$transaction([
+        prisma.gamePhrase.delete({ where: { chat_id: chatId } }),
+        prisma.gameSession.delete({ where: { chat_id: chatId } }),
+      ]);
+
       return "⚠️ Game reset. Send command again.";
     }
 
@@ -83,7 +107,10 @@ export async function startAnswerPhrase(
       : `❌ Wrong! The correct answer was: *${correctAnswer?.text}*\n\n`;
 
     if (game.currentRound >= TOTAL_PHRASES) {
-      await prisma.game.delete({ where: { chat_id: chatId } });
+      await prisma.$transaction([
+        prisma.gamePhrase.delete({ where: { chat_id: chatId } }),
+        prisma.gameSession.delete({ where: { chat_id: chatId } }),
+      ]);
 
       return (
         feedback +
@@ -91,7 +118,7 @@ export async function startAnswerPhrase(
       );
     }
 
-    await prisma.game.update({
+    await prisma.gamePhrase.update({
       where: { chat_id: chatId },
       data: {
         currentRound: { increment: 1 },
@@ -103,6 +130,11 @@ export async function startAnswerPhrase(
     return feedback + formatQuestion(nextPhrase, game.currentRound + 1);
   } catch (error) {
     console.error("[Phrases] Error:", error);
+
+    if (error instanceof Error && error.message.includes("already running")) {
+      return "⚠️ Another game is already running in this chat.";
+    }
+
     return "[Phrases] is unavailable.";
   }
 }

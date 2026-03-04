@@ -12,9 +12,11 @@ export async function randomSlangWord(): Promise<string> {
 🌆 *Slang Word of the Day*
 
 📖 *Word:* ${slangWord.word}
-💬 *Meaning:* ${slangWord.meaning}
+💬 *Definition:* ${slangWord.definition}
 ✏️ *Example:* ${slangWord.example}
-`.trim();
+
+Via: Urban Dictionary
+  `.trim();
   } catch (error) {
     console.error("Api Error:", error);
     return "Random Slang is unavailable.";
