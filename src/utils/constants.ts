@@ -13,7 +13,7 @@ Chat with the AI assistant — ask anything!
 Usage: /ask <your question>"
 
 🥷 */random-slang*
-A ramdom slang appears - you don't need to do anything, just learn
+A random slang appears - you don't need to do anything, just learn
 
 📝 */phrases*
 Get phrase completion suggestions and complete them all.

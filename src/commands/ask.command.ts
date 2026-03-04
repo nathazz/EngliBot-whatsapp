@@ -9,17 +9,17 @@ export async function askToLLM(prompt: string): Promise<string> {
     }
 
     return `
-    📚 *${llmResponse.topic}*
+📚 *${llmResponse.topic}*
 
-    📖 *Explanation*
-    ${llmResponse.explanation}
+📖 *Explanation*
+${llmResponse.explanation}
 
-    ✏️ *Examples*
-    ${llmResponse.examples.map((examples) => `• ${examples}`).join("\n")}
+✏️ *Examples*
+${llmResponse.examples.map((examples) => `• ${examples}`).join("\n")}
 
-  💡 *Tips*
-    ${llmResponse.examples.map((tips) => `• ${tips}`).join("\n")}
-  `;
+💡 *Tips*
+${llmResponse.examples.map((tips) => `• ${tips}`).join("\n")}
+      `;
   } catch (error) {
     console.error("LLM Error:", error);
 
