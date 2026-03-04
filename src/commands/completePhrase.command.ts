@@ -89,14 +89,14 @@ export async function startAnswerPhrase(
     }
 
     const optionMap: Record<string, number> = { a: 0, b: 1, c: 2, d: 3 };
-    const letter = userResponse[0];
-    const choiceIndex = optionMap[letter];
 
-    if (choiceIndex === undefined) {
+    if (!(userResponse in optionMap)) {
       return `⚠️ Reply with *A*, *B*, *C*, or *D*.`;
     }
 
+    const choiceIndex = optionMap[userResponse];
     const chosen = currentPhrase.answers[choiceIndex];
+
     if (!chosen) return `⚠️ Invalid option.`;
 
     const isCorrect = chosen.isCorrect;
