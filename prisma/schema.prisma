@@ -7,31 +7,50 @@ datasource db {
   provider = "mysql"
 }
 
-model word_chain {
-  id Int @id @default(autoincrement())
-  last_word String? 
-  chat_id    String   @unique
+
+model GameSession {
+  id        String   @id @default(uuid())
+  chat_id   String   @unique
+  type      GameType
+  createdAt DateTime @default(now())
+}
+
+enum GameType {
+  WORD_CHAIN
+  PHRASE
+}
+model Word_Chain {
+  id           Int      @id @default(autoincrement())
+  last_word    String?
+  chat_id      String   @unique
   start_letter String
-  used_words Json @default("[]")
-  created_at DateTime @default(now())
+  used_words   Json
+  created_at   DateTime @default(now())
+}
+
+model GamePhrase {
+  id           String   @id @default(uuid())
+  chat_id      String   @unique
+  currentRound Int      @default(1)
+  phrases      Phrase[]
+  createdAt    DateTime @default(now())
 }
 
 model Phrase {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(uuid())
+  gameId     String
   fullPhrase String
-  tip        String?
-  difficulty String?   // b1 / b2 / c1
-  category   String?   // grammar / vocab / phrasal
-  createdAt  DateTime @default(now())
-
+  tip        String
+  difficulty String
+  category   String
   answers    Answer[]
+  Game       GamePhrase     @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
 
 model Answer {
-  id        Int    @id @default(autoincrement())
-  phraseId  Int
+  id        String  @id @default(uuid())
+  phraseId  String
   text      String
-  isCorrect Boolean @default(false)
-
-  phrase    Phrase @relation(fields: [phraseId], references: [id])
+  isCorrect Boolean
+  Phrase    Phrase  @relation(fields: [phraseId], references: [id], onDelete: Cascade)
 }
