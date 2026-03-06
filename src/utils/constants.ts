@@ -19,6 +19,12 @@ A random slang appears - you don't need to do anything, just learn
 Get phrase completion suggestions and complete them all.
 Usage: /phrases <b1|b2|c1> <grammar|vocab|phrasal>"
 
+📦 */box*
+You can save words, examples, and definitions inside the box and see them every time you want, That's your dictionary!
+
+Usage: /box save <word|definition|example>
+See saved words: /box all
+Remove word: /box remove <ID or Name>
 
 ━━━━━━━━━━━━━━━━━━
 💡 _Type a command to get started!_
