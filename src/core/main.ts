@@ -15,6 +15,7 @@ client.on("ready", async () => {
 
 client.on("message_create", async (msg) => {
   if (msg.hasQuotedMsg) return;
+
   if (msg.from !== process.env.NUMBER_ID) return;
 
   const msgUser = msg.body.trim().toLowerCase();

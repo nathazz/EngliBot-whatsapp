@@ -26,6 +26,7 @@ export const BatchSchema = z.object({
   phrases: z.array(PhraseSchema).min(5).max(8),
 });
 
+export type BatchSchemaInput = z.infer<typeof BatchSchema>;
 export type Difficultyinput = z.infer<typeof DifficultyEnum>;
 export type CategoryInput = z.infer<typeof CategoryEnum>;
 export type PhraseInput = z.infer<typeof PhraseSchema>;

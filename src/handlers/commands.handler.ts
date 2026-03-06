@@ -5,7 +5,7 @@ import { randomSlangWord } from "../commands/randomSlang.command";
 import { askToLLM } from "../commands/ask.command";
 import { HELP_TEXT } from "../utils/constants";
 import { CategoryEnum, DifficultyEnum } from "../types/phraseLLM.schema";
-import { startAnswerPhrase } from "../commands/completePhrase.command";
+import { startAnswerPhrase } from "../commands/phrase.command";
 import { AskContentSchema } from "../types/askLLM.schema";
 
 export async function handleCommand(

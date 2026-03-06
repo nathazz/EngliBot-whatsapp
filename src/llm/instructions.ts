@@ -14,5 +14,6 @@ You MUST return ONLY valid JSON.
 If the prompt asks about another topic, politely refuse.
 Do NOT include explanations, comments, or markdown.
 Do NOT add extra fields.
+Send new phrases every time for each game (don't send the same Phrase to user)
 All responses must strictly follow the given schema.
 `;

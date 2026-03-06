@@ -1,12 +1,14 @@
 import { Message } from "whatsapp-web.js";
 import { prisma } from "../config/prisma";
 import { startWordChain } from "../commands/wordChain.command";
-import { startAnswerPhrase } from "../commands/completePhrase.command";
+import { startAnswerPhrase } from "../commands/phrase.command";
+import { getGameSession } from "../db/gameSession.db";
 
-export async function gameSession(msg: Message, msgUser: string): Promise<boolean> {
-  const session = await prisma.gameSession.findUnique({
-    where: { chat_id: msg.from },
-  });
+export async function gameSession(
+  msg: Message,
+  msgUser: string,
+): Promise<boolean> {
+  const session = await getGameSession(msg.from);
 
   if (!session) return false;
 
