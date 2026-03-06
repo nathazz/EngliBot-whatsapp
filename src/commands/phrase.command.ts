@@ -1,4 +1,10 @@
 import { prisma } from "../config/prisma";
+import {
+  createPhraseGame,
+  endPhraseGame,
+  getPhraseGame,
+  updatePhraseGame,
+} from "../db/phrase.db";
 import { generatePhrasesResponse } from "../llm/phrases";
 import { CategoryInput, Difficultyinput } from "../types/phraseLLM.schema";
 import { TOTAL_PHRASES } from "../utils/constants";
@@ -13,14 +19,7 @@ export async function startAnswerPhrase(
   try {
     const userResponse = message.trim().toLowerCase();
 
-    let game = await prisma.gamePhrase.findUnique({
-      where: { chat_id: chatId },
-      include: {
-        phrases: {
-          include: { answers: true },
-        },
-      },
-    });
+    let game = await getPhraseGame(chatId);
 
     if (!game) {
       if (!difficulty || !category) {
@@ -29,49 +28,7 @@ export async function startAnswerPhrase(
 
       const { phrases } = await generatePhrasesResponse(difficulty, category);
 
-      const result = await prisma.$transaction(async (tx) => {
-        const existingSession = await tx.gameSession.findUnique({
-          where: { chat_id: chatId },
-        });
-
-        if (existingSession) {
-          throw new Error("Another game is already running.");
-        }
-
-        await tx.gameSession.create({
-          data: {
-            chat_id: chatId,
-            type: "PHRASE",
-          },
-        });
-
-        const createdGame = await tx.gamePhrase.create({
-          data: {
-            chat_id: chatId,
-            phrases: {
-              create: phrases.map((phrase) => ({
-                fullPhrase: phrase.fullPhrase,
-                tip: phrase.tip,
-                difficulty: phrase.difficulty,
-                category: phrase.category,
-                answers: {
-                  create: phrase.answers.map((a) => ({
-                    text: a.text,
-                    isCorrect: a.isCorrect,
-                  })),
-                },
-              })),
-            },
-          },
-          include: {
-            phrases: {
-              include: { answers: true },
-            },
-          },
-        });
-
-        return createdGame;
-      });
+      const result = await createPhraseGame(chatId, phrases);
 
       return formatQuestion(result.phrases[0], 1);
     }
@@ -80,10 +37,7 @@ export async function startAnswerPhrase(
     const currentPhrase = game.phrases[currentIndex];
 
     if (!currentPhrase) {
-      await prisma.$transaction([
-        prisma.gamePhrase.delete({ where: { chat_id: chatId } }),
-        prisma.gameSession.delete({ where: { chat_id: chatId } }),
-      ]);
+      await endPhraseGame(chatId);
 
       return "⚠️ Game reset. Send command again.";
     }
@@ -107,10 +61,7 @@ export async function startAnswerPhrase(
       : `❌ Wrong! The correct answer was: *${correctAnswer?.text}*\n\n`;
 
     if (game.currentRound >= TOTAL_PHRASES) {
-      await prisma.$transaction([
-        prisma.gamePhrase.delete({ where: { chat_id: chatId } }),
-        prisma.gameSession.delete({ where: { chat_id: chatId } }),
-      ]);
+      await endPhraseGame(chatId);
 
       return (
         feedback +
@@ -118,13 +69,7 @@ export async function startAnswerPhrase(
       );
     }
 
-    await prisma.gamePhrase.update({
-      where: { chat_id: chatId },
-      data: {
-        currentRound: { increment: 1 },
-      },
-    });
-
+    await updatePhraseGame(chatId);
     const nextPhrase = game.phrases[currentIndex + 1];
 
     return feedback + formatQuestion(nextPhrase, game.currentRound + 1);

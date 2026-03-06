@@ -1,4 +1,10 @@
 import { prisma } from "../config/prisma";
+import {
+  createWordChainGame,
+  endWordChainGame,
+  getWordChainGame,
+  updateWordChainGame,
+} from "../db/wordChain.db";
 import { isRealWord } from "../utils/isRealWord";
 import { getRandomLetter } from "../utils/randomLetters";
 
@@ -9,41 +15,16 @@ export async function startWordChain(
   try {
     const word = message.trim().toLowerCase();
 
-    let game = await prisma.word_Chain.findUnique({
-      where: { chat_id: chatId },
-    });
+    let game = await getWordChainGame(chatId);
 
     if (!game) {
       const letter = getRandomLetter();
 
-      await prisma.$transaction(async (tx) => {
-        const existingSession = await tx.gameSession.findUnique({
-          where: { chat_id: chatId },
-        });
+      await createWordChainGame(chatId, letter);
 
-        if (existingSession) {
-          throw new Error("Another game is already running.");
-        }
-
-        await tx.gameSession.create({
-          data: {
-            chat_id: chatId,
-            type: "WORD_CHAIN",
-          },
-        });
-
-        await tx.word_Chain.create({
-          data: {
-            chat_id: chatId,
-            last_word: null,
-            used_words: [],
-            start_letter: letter,
-          },
-        });
-      });
-
-      return `🎮 Game started!
-            First letter: *${letter.toUpperCase()}*`.trim();
+      return `
+🎮 Game started! 
+First letter: *${letter.toUpperCase()}*`.trim();
     }
 
     const usedWords = game.used_words as string[];
@@ -55,11 +36,7 @@ export async function startWordChain(
     const isValidWordInEn = await isRealWord(word);
 
     if (!isValidWordInEn) {
-      await prisma.$transaction([
-        prisma.word_Chain.delete({ where: { chat_id: chatId } }),
-        prisma.gameSession.delete({ where: { chat_id: chatId } }),
-      ]);
-
+      await endWordChainGame(chatId);
       return "❌ This word doesn't exist. Game over!";
     }
 
@@ -68,11 +45,7 @@ export async function startWordChain(
       : game.start_letter;
 
     if (!word.startsWith(targetLetter)) {
-      await prisma.$transaction([
-        prisma.word_Chain.delete({ where: { chat_id: chatId } }),
-        prisma.gameSession.delete({ where: { chat_id: chatId } }),
-      ]);
-
+      await endWordChainGame(chatId);
       return `❌ Wrong letter! The word must start with *${targetLetter.toUpperCase()}*. Game over!`;
     }
 
@@ -82,13 +55,7 @@ export async function startWordChain(
 
     const updatedUsed = [...usedWords, word];
 
-    await prisma.word_Chain.update({
-      where: { chat_id: chatId },
-      data: {
-        last_word: word,
-        used_words: updatedUsed,
-      },
-    });
+    await updateWordChainGame(chatId, word, updatedUsed);
 
     const totalLetters = updatedUsed.reduce((sum, w) => sum + w.length, 0);
     const next = word.slice(-1).toUpperCase();
