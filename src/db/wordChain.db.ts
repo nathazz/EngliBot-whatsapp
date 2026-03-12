@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma";
+import { UpdateWordFn } from "../types/wordChain.schema";
 
 export async function getWordChainGame(chatId: string) {
   return prisma.word_Chain.findUnique({
@@ -37,16 +38,12 @@ export async function createWordChainGame(
   });
 }
 
-export async function updateWordChainGame(
-  chatId: string,
-  lastWord: string,
-  usedWords: string[],
-) {
+export async function updateWordChainGame(chatId: string, data: UpdateWordFn) {
   return prisma.word_Chain.update({
     where: { chat_id: chatId },
     data: {
-      last_word: lastWord,
-      used_words: usedWords,
+      last_word: data.lastWord,
+      used_words: data.usedWords,
     },
   });
 }
