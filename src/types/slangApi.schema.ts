@@ -9,4 +9,5 @@ export const SlangApiSchema = z.object({
     }),
   ),
 });
+
 export type SlangApiResponse = z.infer<typeof SlangApiSchema>;
