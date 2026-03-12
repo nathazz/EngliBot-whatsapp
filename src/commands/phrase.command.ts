@@ -8,7 +8,7 @@ import {
 import { generatePhrasesResponse } from "../llm/phrases";
 import { CategoryInput, Difficultyinput } from "../types/phraseLLM.schema";
 import { TOTAL_PHRASES } from "../utils/constants";
-import { formatQuestion } from "../utils/formatPhraseQuestion";
+import { formatQuestion } from "../utils/formatPhraseResponse";
 
 export async function startAnswerPhrase(
   chatId: string,

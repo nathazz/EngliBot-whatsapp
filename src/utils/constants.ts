@@ -22,9 +22,22 @@ Usage: /phrases <b1|b2|c1> <grammar|vocab|phrasal>"
 📦 */box*
 You can save words, examples, and definitions inside the box and see them every time you want, That's your dictionary!
 
-Usage: /box save <word|definition|example>
-See saved words: /box all
-Remove word: /box remove <ID or Name>
+*Warning*: If you wanna add spaces in <definition> and <example> (it also includes Punctuation), you to need use quotation marks ("")
+
+Usage:
+
+- /box add <word> <definition> <example> (definition and examples are optional)
+
+- /box get <id> (Get by id)
+- /box get --word <word> (Get by word)
+
+- /box list (Get all words)
+
+- /box update <id> <field> <value> (Update by id)
+- /box update --word <word> <field> <value>  (Update by word)
+
+- /box delete <id> (Delete by id)
+- /box delete --word <word> (Delete by word)
 
 ━━━━━━━━━━━━━━━━━━
 💡 _Type a command to get started!_

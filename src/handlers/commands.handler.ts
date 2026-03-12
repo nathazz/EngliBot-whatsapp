@@ -7,6 +7,9 @@ import { HELP_TEXT } from "../utils/constants";
 import { CategoryEnum, DifficultyEnum } from "../types/phraseLLM.schema";
 import { startAnswerPhrase } from "../commands/phrase.command";
 import { AskContentSchema } from "../types/askLLM.schema";
+import { BoxCommandSchema } from "../types/box.schema";
+import { boxCommand } from "../commands/box.command";
+import { parseBoxArgs } from "../utils/parseBoxArgs";
 
 export async function handleCommand(
   msg: Message,
@@ -47,6 +50,22 @@ export async function handleCommand(
         validateDifficulty.data,
         validateCategory.data,
       );
+
+      return msg.reply(response);
+    }
+
+    case "/box": {
+      const parsedArgs = parseBoxArgs(msg.body);
+      const args = parsedArgs.slice(1);
+
+      const parsed = BoxCommandSchema.safeParse(args);
+
+      if (!parsed.success) {
+        return msg.reply("Invalid /box command");
+      }
+
+      const data = parsed.data;
+      const response = await boxCommand(msg, data);
 
       return msg.reply(response);
     }

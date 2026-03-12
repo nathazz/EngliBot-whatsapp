@@ -55,7 +55,10 @@ First letter: *${letter.toUpperCase()}*`.trim();
 
     const updatedUsed = [...usedWords, word];
 
-    await updateWordChainGame(chatId, word, updatedUsed);
+    await updateWordChainGame(chatId, {
+      lastWord: word,
+      usedWords: updatedUsed,
+    });
 
     const totalLetters = updatedUsed.reduce((sum, w) => sum + w.length, 0);
     const next = word.slice(-1).toUpperCase();

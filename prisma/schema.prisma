@@ -54,3 +54,14 @@ model Answer {
   isCorrect Boolean
   Phrase    Phrase  @relation(fields: [phraseId], references: [id], onDelete: Cascade)
 }
+
+model Box {
+  id         Int      @id @default(autoincrement())
+  word       String   @unique        
+  definition String?
+  example    String?
+  createdAt  DateTime @default(now())  
+  updatedAt  DateTime @updatedAt      
+
+  @@index([word])
+}
