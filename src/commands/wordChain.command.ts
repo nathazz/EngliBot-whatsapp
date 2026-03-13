@@ -5,7 +5,7 @@ import {
   getWordChainGame,
   updateWordChainGame,
 } from "../db/wordChain.db";
-import { isRealWord } from "../utils/isRealWord";
+import { isRealWord } from "../helpers/isRealWord.helper";
 import { getRandomLetter } from "../utils/randomLetters";
 
 export async function startWordChain(

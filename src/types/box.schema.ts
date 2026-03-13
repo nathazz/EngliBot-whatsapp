@@ -6,6 +6,15 @@ export const CreateWordSchema = z.object({
   example: z.string().min(10).max(200).optional(),
 });
 
+const WordSchemaPDF = z.object({
+  id: z.number(),
+  word: z.string(),
+  definition: z.string().nullish(),
+  example: z.string().nullish(),
+});
+
+const WordListSchema = z.array(WordSchemaPDF);
+
 const AddSchema = z.tuple([
   z.literal("add"),
   z.string().min(2),
@@ -70,6 +79,7 @@ export type GetByWordCommand = z.infer<typeof GetByWordSchema>;
 export type DeleteByWordCommand = z.infer<typeof DeleteByWordSchema>;
 export type UpdateByWordCommand = z.infer<typeof UpdateByWordSchema>;
 
+export type WordListSchema = z.infer<typeof WordListSchema>;
 export type BoxCommand = z.infer<typeof BoxCommandSchema>;
 export type BoxUpdateFn = z.infer<typeof boxUpdateSchema>;
 export type BoxWordFn = z.infer<typeof CreateWordSchema>;

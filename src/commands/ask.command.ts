@@ -21,7 +21,7 @@ ${llmResponse.examples.map((examples) => `• ${examples}`).join("\n")}
 ${llmResponse.examples.map((tips) => `• ${tips}`).join("\n")}
       `;
   } catch (error) {
-    console.error("LLM Error:", error);
+    console.error("[Ask Command] LLM Error:", error);
 
     return "AI service is unavailable.";
   }

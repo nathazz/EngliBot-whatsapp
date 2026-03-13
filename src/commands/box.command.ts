@@ -16,7 +16,7 @@ export async function boxCommand(
 
     return box;
   } catch (error) {
-    console.error("Box Command:", error);
+    console.error("[Box Command] Failed:", error);
 
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
