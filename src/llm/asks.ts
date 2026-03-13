@@ -29,7 +29,7 @@ export async function generateLLMResponse(prompt: string) {
 
     return validatedData;
   } catch (e) {
-    console.error("Failed to parse JSON. Full response was:", fullResponse);
+    console.error("[LLM Error] Failed to parse JSON. Full response was:", fullResponse);
     throw new Error("Model generated invalid or truncated JSON");
   }
 }

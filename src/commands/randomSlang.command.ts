@@ -1,4 +1,4 @@
-import { getRandomSlangs } from "../utils/randomSlangWord";
+import { getRandomSlangs } from "../helpers/randomSlangWord.helper";
 
 export async function randomSlangWord(): Promise<string> {
   try {
@@ -18,7 +18,7 @@ export async function randomSlangWord(): Promise<string> {
 Via: Urban Dictionary
   `.trim();
   } catch (error) {
-    console.error("Api Error:", error);
+    console.error("[Random Slang] Api Error:", error);
     return "Random Slang is unavailable.";
   }
 }

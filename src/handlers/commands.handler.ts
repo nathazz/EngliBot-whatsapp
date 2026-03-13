@@ -1,4 +1,4 @@
-import { Message } from "whatsapp-web.js";
+import { Message, MessageMedia } from "whatsapp-web.js";
 import { CommandsEnum } from "../types/commands.schema";
 import { startWordChain } from "../commands/wordChain.command";
 import { randomSlangWord } from "../commands/randomSlang.command";
@@ -10,6 +10,9 @@ import { AskContentSchema } from "../types/askLLM.schema";
 import { BoxCommandSchema } from "../types/box.schema";
 import { boxCommand } from "../commands/box.command";
 import { parseBoxArgs } from "../utils/parseBoxArgs";
+import { client } from "../config/clientWp";
+import { exportBoxData } from "../commands/exportBoxData.command";
+import { randomUUID } from "node:crypto";
 
 export async function handleCommand(
   msg: Message,
@@ -78,11 +81,38 @@ export async function handleCommand(
         return msg.reply(validateAsk.error.issues[0].message);
       }
 
+      msg.reply("Loading ⌛...");
+
       const response = await askToLLM(question);
       return msg.reply(response);
     }
 
     case "/help":
       return msg.reply(HELP_TEXT);
+
+    case "/export-box": {
+      msg.reply("Loading ⌛...");
+
+      const pdfBuffer = await exportBoxData();
+
+      if (!pdfBuffer.success || !pdfBuffer.data) {
+        return msg.reply(
+          pdfBuffer.message ?? "Something went wrong 😕 Try again later!",
+        );
+      }
+
+      const base64PDF = Buffer.from(pdfBuffer.data).toString("base64");
+      const randomID = randomUUID();
+
+      const media = new MessageMedia(
+        "application/pdf",
+        base64PDF,
+        `vocabulary-box-${randomID}.pdf`,
+      );
+
+      await client.sendMessage(msg.from, media, {
+        caption: pdfBuffer.message,
+      });
+    }
   }
 }
